@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import _ from 'lodash'
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -60,7 +61,7 @@ async function connectToMongo() {
 
     // Dynamic route for accessing "http://site.page/useAnyCustomPageHere" url and generate a new list.
     app.get("/:categories", (req, res)=>  {
-        const newCategory = req.params.categories;
+        const newCategory = _.capitalize(req.params.categories);
         
         List.findOne({ name: newCategory }, (err, foundList)=> {
             if(!err) {
@@ -106,13 +107,27 @@ async function connectToMongo() {
     });
     // Delete a item
     app.post("/delete", (req, res)=> {
-        // Save selected vas variable
-       const itemDelete = req.body.delete;
-       // Run delete function on selected
-        Item.deleteOne({ _id: itemDelete }, (err)=> {
-            if(err) return handleError(err);
-            else { res.redirect("/"); }
-        });
+
+        // Save selected items and lists as variables
+       const itemID = req.body.itemIdentity;
+       const listName = req.body.listName
+
+
+       if(listName === "Today") {
+
+            // Run delete function on selected
+            Item.deleteOne({ _id: itemID }, (err)=> {
+                if(err) return handleError(err);
+                else { res.redirect("/"); }
+            });
+       }else {
+           List.findOneAndUpdate({ name:listName }, { $pull: { items: { _id:itemID } } }, (err, result)=> {
+               if(!err) {
+                res.redirect("/" + listName);
+               }
+           });
+
+       }
 
     });
 }
@@ -122,3 +137,4 @@ connectToMongo();
 app.listen(3000, ()=> {
     console.log('Server is listening on port 3000');
 });
+  ////the change is on this line.////
