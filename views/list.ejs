@@ -1,0 +1,29 @@
+<%- include('partials/header.ejs') -%>
+<body>
+    
+    <div class="box" id="heading">
+        <h1> <%= listTitle %></h1>
+    </div>
+    
+    <div class="box">
+
+        
+        <%  listRecords.forEach(records => {  %>
+            <form action="/delete" method="POST">
+                <div class="item"> 
+                <input name="delete" type="checkbox" onChange="this.form.submit()" value=<%= records._id %> >
+                <p> <%=  records.name %> </p>
+            </div>
+            </form>
+        <%  }); %>
+
+
+           
+
+        <form class="item" action="/" method="POST">
+            <input type="text" id="Input" name="newRecord" placeholder="New todo" autocomplete="off"></input>
+            <button type="submit" name="list" value=<%= listTitle %> </button>+</button>
+        </form>
+    </div>
+</body>
+<%- include('partials/footer.ejs') -%>
